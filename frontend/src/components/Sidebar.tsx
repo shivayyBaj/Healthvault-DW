@@ -28,7 +28,6 @@ const navItems = [
   { name: 'Model Comparison', path: '/model-comparison', icon: Settings },
   { name: 'Explainability', path: '/explainability', icon: Info },
   { name: 'Forecasting', path: '/forecasting', icon: TrendingUp },
-  { name: 'WEKA', path: '/weka', icon: LineChart },
   { name: 'Datasets', path: '/datasets', icon: Database },
 ];
 

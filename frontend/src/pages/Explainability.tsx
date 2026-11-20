@@ -61,7 +61,6 @@ const Explainability = () => {
   const [patientData, setPatientData] = useState(defaultPatient);
   const [selectedModel, setSelectedModel] = useState<string>('');
 
-  // ── Fetch trained models list ─────────────────────────────────────────────
   const { data: models = [], isLoading: isLoadingModels } = useQuery<any[]>({
     queryKey: ['mlModels'],
     queryFn: fetchModels,
@@ -74,7 +73,6 @@ const Explainability = () => {
     }
   }, [models, selectedModel]);
 
-  // ── Global Query — refetches whenever selectedModel changes ───────────────
   const {
     data: globalData,
     isLoading: isLoadingGlobal,
@@ -86,7 +84,6 @@ const Explainability = () => {
     enabled: !!selectedModel,
   });
 
-  // ── Local Mutation ─────────────────────────────────────────────────────────
   const localMutation = useMutation({
     mutationFn: generateLocalExplanation,
   });
@@ -106,7 +103,7 @@ const Explainability = () => {
 
   const handleModelChange = (modelName: string) => {
     setSelectedModel(modelName);
-    localMutation.reset(); // clear old local results when model changes
+    localMutation.reset(); 
   };
 
   const fillRandomPatient = () => {
@@ -131,7 +128,6 @@ const Explainability = () => {
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
@@ -143,7 +139,6 @@ const Explainability = () => {
           </p>
         </div>
 
-        {/* ── Model Selector ─────────────────────────────────────────────── */}
         <div className="flex flex-col gap-1 min-w-[220px]">
           <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1">
             <Cpu className="h-3.5 w-3.5" /> Explain Model
@@ -174,7 +169,6 @@ const Explainability = () => {
         </div>
       </div>
 
-      {/* ── Model Cards (quick-pick chips) ────────────────────────────────── */}
       {models && models.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {models.map((m: any) => (
@@ -196,7 +190,6 @@ const Explainability = () => {
         </div>
       )}
 
-      {/* ── Tabs ─────────────────────────────────────────────────────────────── */}
       <div className="flex space-x-1 rounded-xl bg-gray-100 p-1">
         <button
           onClick={() => setActiveTab('global')}
@@ -220,7 +213,6 @@ const Explainability = () => {
         </button>
       </div>
 
-      {/* ── GLOBAL TAB ───────────────────────────────────────────────────────── */}
       {activeTab === 'global' && (
         <div className="space-y-6 animate-in fade-in duration-300">
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3 text-blue-800">
@@ -439,14 +431,6 @@ const Explainability = () => {
 
             {localMutation.data && !localMutation.data.error && (
               <div className="space-y-6 animate-in fade-in duration-500">
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 text-amber-900">
-                  <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-semibold">Non-Clinical Disclaimer</h4>
-                    <p className="text-sm mt-1">{localMutation.data.disclaimer}</p>
-                  </div>
-                </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Prediction Summary */}
                   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">

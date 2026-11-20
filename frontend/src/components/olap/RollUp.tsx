@@ -52,7 +52,7 @@ export default function RollUp() {
 
   return (
     <div className="space-y-5">
-      {/* Controls */}
+
       <div className="flex flex-wrap gap-4 items-center bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
         <div>
           <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Aggregation Level</p>
@@ -87,12 +87,10 @@ export default function RollUp() {
         </div>
       </div>
 
-      {/* Query Summary */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-800">
         <span className="font-semibold">📊 Current Query: </span>{querySummary}
       </div>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { label: 'Total Admissions', value: summary?.total_admissions?.toLocaleString(), icon: Users, color: 'text-blue-600 bg-blue-50' },
@@ -112,7 +110,6 @@ export default function RollUp() {
         })}
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
           <h4 className="font-semibold text-slate-700 mb-4">Admissions — {LEVEL_LABELS[level]}</h4>
@@ -153,7 +150,6 @@ export default function RollUp() {
         </div>
       </div>
 
-      {/* Pivot Table */}
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-100 bg-slate-50">
           <h4 className="font-semibold text-slate-700">Pivot Table — {LEVEL_LABELS[level]} Breakdown</h4>

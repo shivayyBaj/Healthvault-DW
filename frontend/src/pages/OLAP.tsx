@@ -22,7 +22,6 @@ export default function OLAP() {
         <p className="text-slate-500 text-sm mt-1">Interactive data cube analysis on the star schema</p>
       </div>
 
-      {/* Tabs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {TABS.map((tab) => {
           const Icon = tab.icon;
@@ -45,7 +44,6 @@ export default function OLAP() {
         })}
       </div>
 
-      {/* Content Area */}
       <div className="mt-6">
         {activeTab === 'rollup' && <RollUp />}
         {activeTab === 'drilldown' && <DrillDown />}

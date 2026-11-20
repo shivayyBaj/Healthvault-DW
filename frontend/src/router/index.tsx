@@ -13,7 +13,6 @@ import Explainability from '../pages/Explainability';
 import Clustering from '../pages/Clustering';
 import Forecasting from '../pages/Forecasting';
 import Datasets from '../pages/Datasets';
-import { WekaPlaceholder } from '../pages/Placeholders';
 
 export const router = createBrowserRouter([
   {
@@ -29,7 +28,7 @@ export const router = createBrowserRouter([
         path: 'dashboard',
         element: <Dashboard />
       },
-      // Placeholders for other routes
+
       { path: 'warehouse', element: <Warehouse /> },
       { path: 'etl', element: <ETLPipeline /> },
       { path: 'olap', element: <OLAP /> },
@@ -40,7 +39,6 @@ export const router = createBrowserRouter([
       { path: 'model-comparison', element: <ModelComparison /> },
       { path: 'explainability', element: <Explainability /> },
       { path: 'forecasting', element: <Forecasting /> },
-      { path: 'weka', element: <WekaPlaceholder /> },
       { path: 'datasets', element: <Datasets /> },
       { path: '*', element: <Navigate to="/dashboard" replace /> },
     ]

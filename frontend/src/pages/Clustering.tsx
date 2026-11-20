@@ -27,10 +27,9 @@ export default function Clustering() {
     mutationFn: fetchClustering,
   });
 
-  // Load initially
   React.useEffect(() => {
     mutation.mutate({ features: selectedFeatures, k, handle_outliers: handleOutliers });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const handleRun = () => {
@@ -81,15 +80,14 @@ export default function Clustering() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
-        {/* Configuration Sidebar */}
+
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
               <Settings className="h-5 w-5 text-gray-500" />
               Configuration
             </h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Number of Clusters (K)</label>
@@ -131,7 +129,7 @@ export default function Clustering() {
                   <span className="text-sm font-medium text-gray-700">Handle Outliers</span>
                 </label>
               </div>
-              
+
               <button
                 onClick={handleRun}
                 disabled={mutation.isPending}
@@ -150,9 +148,8 @@ export default function Clustering() {
           </div>
         </div>
 
-        {/* Results Area */}
         <div className="lg:col-span-3 space-y-6">
-          
+
           {mutation.isPending && !mutation.data && (
             <div className="h-96 bg-white rounded-2xl border border-gray-100 flex items-center justify-center">
               <div className="flex flex-col items-center">
@@ -164,7 +161,7 @@ export default function Clustering() {
 
           {mutation.data && !mutation.data.error && (
             <>
-              {/* K Selection Metrics */}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                   <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Elbow Method (Inertia)</h3>
@@ -180,7 +177,7 @@ export default function Clustering() {
                     </ResponsiveContainer>
                   </div>
                 </div>
-                
+
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                   <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Silhouette Score</h3>
                   <div className="h-64">
@@ -197,7 +194,6 @@ export default function Clustering() {
                 </div>
               </div>
 
-              {/* PCA Scatter Plot */}
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <div className="flex justify-between items-end mb-6">
                   <div>
@@ -217,7 +213,7 @@ export default function Clustering() {
                       <XAxis type="number" dataKey="PC1" name="PC1" tick={{fontSize: 12}} />
                       <YAxis type="number" dataKey="PC2" name="PC2" tick={{fontSize: 12}} />
                       <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
-                      
+
                       {mutation.data.profiles.map((profile: any, idx: number) => (
                         <Scatter 
                           key={profile.name}
@@ -232,7 +228,6 @@ export default function Clustering() {
                 </div>
               </div>
 
-              {/* Cluster Profiles */}
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">Cluster Characteristics</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

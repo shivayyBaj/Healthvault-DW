@@ -47,7 +47,7 @@ export default function Slice() {
 
   return (
     <div className="space-y-5">
-      {/* Controls */}
+
       <div className="flex flex-wrap gap-6 items-end bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
         <div>
           <label className="block text-xs font-semibold text-slate-500 uppercase mb-2">Dimension (what to slice on)</label>
@@ -83,12 +83,10 @@ export default function Slice() {
         </div>
       </div>
 
-      {/* Query Summary */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-800">
         <span className="font-semibold">📊 Current Query: </span>{querySummary}
       </div>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: 'Total Admissions', value: kpis?.total_admissions?.toLocaleString(), icon: Users, color: 'text-blue-600 bg-blue-50' },
@@ -109,7 +107,6 @@ export default function Slice() {
         })}
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
           <h4 className="font-semibold text-slate-700 mb-4">Monthly Admission Trend — {DIMENSIONS[dimension]?.label}: {value}</h4>

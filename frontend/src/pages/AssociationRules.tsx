@@ -42,7 +42,7 @@ export default function AssociationRules() {
     const csv = rules.map((r: any) => 
       `${r.id},"${formatList(r.antecedent)}","${formatList(r.consequent)}",${r.support.toFixed(4)},${r.confidence.toFixed(4)},${r.lift.toFixed(4)}`
     ).join('\n');
-    
+
     const blob = new Blob([header + csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -80,8 +80,7 @@ export default function AssociationRules() {
       <MetricExplanation />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        
-        {/* LEFT COLUMN: Controls & Rules Table */}
+
         <div className="lg:col-span-3 space-y-6">
           <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm flex flex-wrap gap-6 items-end">
             <div className="flex-1 min-w-[200px]">
@@ -103,7 +102,7 @@ export default function AssociationRules() {
               <h4 className="font-semibold text-slate-700">Discovered Rules ({rules.length})</h4>
               {data?.summary && <span className="text-xs text-slate-500 bg-slate-200 px-2 py-1 rounded-full">Max Lift: {data.summary.max_lift.toFixed(2)}</span>}
             </div>
-            
+
             {isLoading ? (
                <div className="p-8 text-center text-slate-500">Mining rules...</div>
             ) : apiError ? (
@@ -143,8 +142,7 @@ export default function AssociationRules() {
               </div>
             )}
           </div>
-          
-          {/* Visualizations */}
+
           {rules.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
@@ -190,7 +188,6 @@ export default function AssociationRules() {
           )}
         </div>
 
-        {/* RIGHT COLUMN: Detail Panel */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm sticky top-6">
             <div className="px-5 py-4 border-b border-slate-100 bg-slate-50 flex items-center gap-2">
@@ -227,7 +224,7 @@ export default function AssociationRules() {
                         This specific combination appears in {(selectedRule.support * 100).toFixed(1)}% of all patients in the dataset.
                       </p>
                     </div>
-                    
+
                     <div>
                       <div className="flex justify-between mb-1">
                         <span className="text-sm font-medium text-slate-600">Confidence</span>

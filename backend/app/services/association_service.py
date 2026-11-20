@@ -1,83 +1,101 @@
 import pandas as pd
 import numpy as np
 from mlxtend.frequent_patterns import apriori, association_rules
-
-def generate_transactions(n=500):
-    np.random.seed(42)
-    # Generate synthetic patient profiles
-    data = []
-    for _ in range(n):
-        age_group = np.random.choice(["Age: 19-35", "Age: 36-50", "Age: 51-70", "Age: 71+"], p=[0.2, 0.3, 0.3, 0.2])
-        gender = np.random.choice(["Gender: M", "Gender: F"])
-        
-        # Base probabilities
-        p_smoke = 0.2
-        p_hyper = 0.3
-        p_diabetes = 0.15
-        
-        if "51-70" in age_group or "71+" in age_group:
-            p_hyper += 0.2
-            p_diabetes += 0.15
-            
-        smoking = np.random.random() < p_smoke
-        high_bp = np.random.random() < p_hyper
-        diabetes = np.random.random() < p_diabetes
-        
-        # Heart disease is heavily dependent on the others
-        p_heart = 0.05
-        if smoking: p_heart += 0.1
-        if high_bp: p_heart += 0.2
-        if diabetes: p_heart += 0.2
-        heart_disease = np.random.random() < p_heart
-        
-        record = {
+from .data_loader import load_heart_disease, load_diabetes_130
+def extract_real_transactions(n=1000):
+    """
+    Builds clinical transaction itemsets directly from real-world records:
+    - UCI Heart Disease (cardiovascular risk factors, hypertension, cholesterol)
+    - Diabetes 130-US Hospitals (diabetes medications, comorbidity patterns, diagnoses)
+    """
+    heart = load_heart_disease()
+    d130 = load_diabetes_130().head(min(n, 1200))
+    transactions = []
+    for _, r in heart.iterrows():
+        age = float(r['age'])
+        age_group = "Age: 19-35" if age <= 35 else "Age: 36-50" if age <= 50 else "Age: 51-70" if age <= 70 else "Age: 71+"
+        gender = "Gender: M" if int(r['sex']) == 1 else "Gender: F"
+        has_high_bp = float(r['trestbps']) >= 140
+        has_high_chol = float(r['chol']) >= 240
+        has_diabetes = int(r['fbs']) == 1
+        has_heart_disease = int(r['diagnosis']) > 0
+        item = {
             age_group: True,
             gender: True,
-            "Smoker": smoking,
-            "High BP": high_bp,
-            "Diabetes": diabetes,
-            "Heart Disease": heart_disease,
+            "High BP": has_high_bp,
+            "High Cholesterol": has_high_chol,
+            "Diabetes": has_diabetes,
+            "Heart Disease": has_heart_disease,
+            "Diag: Circulatory": has_heart_disease,
+            "Diag: Endocrine": has_diabetes
         }
-        
-        # Add diagnosis category
-        diag = np.random.choice(["Diag: Circulatory", "Diag: Endocrine", "Diag: Respiratory", "Diag: Digestive"])
-        if heart_disease:
-            diag = "Diag: Circulatory"
-        elif diabetes:
-            diag = "Diag: Endocrine"
-            
-        record[diag] = True
-        data.append(record)
-        
-    df = pd.DataFrame(data).fillna(False).astype(bool)
+        transactions.append(item)
+    for _, r in d130.iterrows():
+        age_bracket = str(r['age'])
+        if age_bracket in ['[0-10)', '[10-20)', '[20-30)', '[30-40)']:
+            age_group = "Age: 19-35"
+        elif age_bracket in ['[40-50)', '[50-60)']:
+            age_group = "Age: 36-50"
+        elif age_bracket in ['[60-70)', '[70-80)']:
+            age_group = "Age: 51-70"
+        else:
+            age_group = "Age: 71+"
+        gender = "Gender: M" if str(r['gender']).lower() == 'male' else "Gender: F"
+        has_diabetes = True
+        insulin_used = str(r.get('insulin', 'No')) in ['Steady', 'Up', 'Down']
+        metformin_used = str(r.get('metformin', 'No')) in ['Steady', 'Up', 'Down']
+        code_str = str(r.get('diag_1', ''))
+        is_circulatory = False
+        is_endocrine = False
+        is_respiratory = False
+        is_digestive = False
+        try:
+            num = float(code_str)
+            if 390 <= num <= 459 or num == 785:
+                is_circulatory = True
+            elif 250 <= num <= 250.99 or code_str.startswith('250'):
+                is_endocrine = True
+            elif 460 <= num <= 519 or num == 786:
+                is_respiratory = True
+            elif 520 <= num <= 579 or num == 787:
+                is_digestive = True
+        except (ValueError, TypeError):
+            pass
+        has_heart_disease = is_circulatory
+        has_high_bp = is_circulatory or (int(r.get('number_diagnoses', 0)) >= 5)
+        item = {
+            age_group: True,
+            gender: True,
+            "High BP": has_high_bp,
+            "Diabetes": has_diabetes,
+            "Heart Disease": has_heart_disease,
+            "Insulin Therapy": insulin_used,
+            "Metformin Therapy": metformin_used,
+            "Diag: Circulatory": is_circulatory,
+            "Diag: Endocrine": is_endocrine or has_diabetes,
+            "Diag: Respiratory": is_respiratory,
+            "Diag: Digestive": is_digestive
+        }
+        transactions.append(item)
+    df = pd.DataFrame(transactions).fillna(False).astype(bool)
     return df
-
+def generate_transactions(n=500):
+    """Backward compatibility alias returning real clinical transactions."""
+    return extract_real_transactions(n)
 def mine_rules(min_support=0.1, min_confidence=0.5, min_lift=1.0):
-    df = generate_transactions(800)
-    
-    # 1. Frequent Itemsets
+    df = extract_real_transactions(800)
     frequent_itemsets = apriori(df, min_support=min_support, use_colnames=True)
-    
     if frequent_itemsets.empty:
         return {"rules": [], "itemsets": [], "error": "No itemsets found. Try lowering minimum support."}
-    
-    # Ensure items are standard Python str to avoid NumPy 2.x generic scalar casting in mlxtend
     frequent_itemsets['itemsets'] = frequent_itemsets['itemsets'].apply(
         lambda s: frozenset(str(x) for x in s)
     )
-        
-    # 2. Association Rules
     rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=min_confidence)
-    
     if rules.empty:
         return {"rules": [], "itemsets": [], "error": "No rules found. Try lowering minimum confidence."}
-        
     rules = rules[rules['lift'] >= min_lift]
-    
     if rules.empty:
         return {"rules": [], "itemsets": [], "error": "No rules found. Try lowering minimum lift."}
-    
-    # Format rules for JSON
     rules_list = []
     for idx, row in rules.iterrows():
         ant = list(row['antecedents'])
@@ -90,8 +108,6 @@ def mine_rules(min_support=0.1, min_confidence=0.5, min_lift=1.0):
             "confidence": float(row['confidence']),
             "lift": float(row['lift'])
         })
-        
-    # Format itemsets for JSON (Top 15)
     frequent_itemsets['length'] = frequent_itemsets['itemsets'].apply(lambda x: len(x))
     top_itemsets = frequent_itemsets.sort_values('support', ascending=False).head(15)
     itemsets_list = []
@@ -100,13 +116,12 @@ def mine_rules(min_support=0.1, min_confidence=0.5, min_lift=1.0):
             "items": list(row['itemsets']),
             "support": float(row['support'])
         })
-        
     return {
         "rules": rules_list,
         "itemsets": itemsets_list,
         "summary": {
             "total_rules": len(rules_list),
-            "max_lift": float(rules['lift'].max()),
-            "avg_confidence": float(rules['confidence'].mean())
+            "max_lift": float(rules['lift'].max()) if not rules.empty else 0.0,
+            "avg_confidence": float(rules['confidence'].mean()) if not rules.empty else 0.0
         }
     }

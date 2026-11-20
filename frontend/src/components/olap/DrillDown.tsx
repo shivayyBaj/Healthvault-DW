@@ -79,7 +79,7 @@ export default function DrillDown() {
 
   return (
     <div className="space-y-5">
-      {/* Breadcrumb */}
+
       <div className="flex items-center gap-2 bg-white p-3 rounded-lg border border-slate-200 shadow-sm text-sm flex-wrap">
         <Home className="h-4 w-4 text-slate-400" />
         {breadcrumb.map((crumb, i) => (
@@ -102,7 +102,6 @@ export default function DrillDown() {
         </span>
       </div>
 
-      {/* Query Summary */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-800">
         <span className="font-semibold">📊 Current Query: </span>{querySummary}
       </div>
@@ -114,7 +113,6 @@ export default function DrillDown() {
         </div>
       )}
 
-      {/* Chart — only for dept and doctor */}
       {!isVisitLevel && (
         <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
           <h4 className="font-semibold text-slate-700 mb-4">
@@ -151,7 +149,6 @@ export default function DrillDown() {
         </div>
       )}
 
-      {/* Table */}
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-100 bg-slate-50">
           <h4 className="font-semibold text-slate-700">

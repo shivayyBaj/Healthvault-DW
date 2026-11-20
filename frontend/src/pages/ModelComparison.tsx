@@ -22,14 +22,13 @@ export default function ModelComparison() {
     }
   });
 
-  // Calculate some dummy ROC curve data if not provided (for display purposes if just fetching metadata)
   const renderRocCurve = (model: any) => {
-    // If the train mutation returns the roc_curve, use it. Otherwise, mock it based on AUC for visualization
+
     let rocData = [];
     if (model.roc_curve) {
        rocData = model.roc_curve.fpr.map((fpr: number, i: number) => ({ fpr, tpr: model.roc_curve.tpr[i] }));
     } else {
-       // Mock a curve matching the AUC roughly
+
        const auc = model.metrics?.roc_auc || model.roc_auc;
        rocData = [
          { fpr: 0, tpr: 0 },
@@ -102,7 +101,6 @@ export default function ModelComparison() {
         </div>
       )}
 
-      {/* Comparison Table */}
       {(models || trainModels.isSuccess) && !trainModels.isPending && (
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
@@ -155,7 +153,6 @@ export default function ModelComparison() {
         </div>
       )}
 
-      {/* Model Inspection Panel */}
       {selectedModel && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 bg-white rounded-lg border border-slate-200 shadow-sm p-6">

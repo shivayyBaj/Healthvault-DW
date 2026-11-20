@@ -9,7 +9,7 @@ export default function Header() {
   const [apiStatus, setApiStatus] = useState<'online' | 'offline' | 'checking'>('checking');
 
   useEffect(() => {
-    // Check API status
+
     const checkStatus = async () => {
       try {
         await axios.get('http://localhost:8000/api/health', { timeout: 2000 });
@@ -25,7 +25,7 @@ export default function Header() {
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
-    // Note: To fully implement dark mode, we would toggle a 'dark' class on the HTML element.
+
     if (theme === 'light') {
       document.documentElement.classList.add('dark');
     } else {
@@ -33,10 +33,9 @@ export default function Header() {
     }
   };
 
-  // Generate breadcrumb and title from path
   const pathParts = location.pathname.split('/').filter(Boolean);
   const currentPath = pathParts.length > 0 ? pathParts[0] : 'dashboard';
-  
+
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
     'warehouse': 'Data Warehouse',
@@ -49,7 +48,6 @@ export default function Header() {
     'model-comparison': 'Model Comparison',
     'explainability': 'Explainable AI',
     'forecasting': 'Time-Series Forecasting',
-    'weka': 'WEKA Analysis',
     'datasets': 'Dataset Explorer'
   };
 
@@ -57,8 +55,7 @@ export default function Header() {
 
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10">
-      
-      {/* Left side: Breadcrumb & Title */}
+
       <div className="flex flex-col justify-center">
         <nav className="flex text-xs text-gray-500 mb-0.5" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1">
@@ -76,16 +73,13 @@ export default function Header() {
         <h1 className="text-lg font-bold text-gray-900 leading-tight">{pageTitle}</h1>
       </div>
 
-      {/* Right side: Indicators & Actions */}
       <div className="flex items-center gap-4">
-        
-        {/* Dataset Indicator */}
+
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-gray-200 bg-gray-50">
           <Database className="h-4 w-4 text-indigo-500" />
           <span className="text-xs font-medium text-gray-700">Active: <span className="font-bold">Synthetic Core</span></span>
         </div>
 
-        {/* API Status */}
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-gray-200 bg-gray-50" title="Backend API Status">
           <Server className="h-4 w-4 text-gray-500" />
           {apiStatus === 'online' ? (
@@ -101,7 +95,6 @@ export default function Header() {
           )}
         </div>
 
-        {/* Theme Toggle */}
         <button 
           onClick={toggleTheme}
           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"

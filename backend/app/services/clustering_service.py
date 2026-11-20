@@ -5,94 +5,79 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
-import logging
-
-def generate_segmentation_data(n=1500):
-    np.random.seed(42)
-    # Generate some distinct clusters roughly
-    
-    # Cluster 0: Older, higher chronic conditions, higher cost
-    # Cluster 1: Younger, healthy, low cost
-    # Cluster 2: Middle-aged, high BMI/glucose
-    
-    data = []
-    for _ in range(n):
-        c = np.random.choice([0, 1, 2], p=[0.3, 0.4, 0.3])
-        if c == 0:
-            age = np.random.normal(70, 8)
-            bmi = np.random.normal(26, 3)
-            glucose = np.random.normal(110, 15)
-            bp = np.random.normal(140, 15)
-            chronic = np.random.poisson(3)
-            cost = np.random.normal(8000, 2000)
-        elif c == 1:
-            age = np.random.normal(30, 8)
-            bmi = np.random.normal(23, 3)
-            glucose = np.random.normal(90, 10)
-            bp = np.random.normal(115, 10)
-            chronic = np.random.poisson(0.5)
-            cost = np.random.normal(1500, 500)
-        else:
-            age = np.random.normal(50, 10)
-            bmi = np.random.normal(32, 4)
-            glucose = np.random.normal(160, 25)
-            bp = np.random.normal(135, 12)
-            chronic = np.random.poisson(1.5)
-            cost = np.random.normal(4000, 1500)
-            
-        data.append({
-            'id': f"PT-{np.random.randint(10000, 99999)}",
-            'Age': max(18, age),
-            'BMI': max(15, bmi),
-            'Glucose': max(60, glucose),
-            'Blood Pressure': max(80, bp),
-            'Chronic Condition Count': min(10, chronic),
-            'Treatment Cost': max(500, cost)
+from .data_loader import load_pima_diabetes, load_heart_disease
+def load_real_segmentation_data(n=1000):
+    """
+    Constructs patient segmentation profiles directly from the real-world
+    Pima Indians Diabetes and UCI Heart Disease datasets.
+    """
+    pima = load_pima_diabetes()
+    heart = load_heart_disease()
+    rows = []
+    pima_median_bmi = float(pima['BMI'][pima['BMI'] > 0].median())
+    pima_median_bp = float(pima['BloodPressure'][pima['BloodPressure'] > 0].median())
+    pima_median_glu = float(pima['Glucose'][pima['Glucose'] > 0].median())
+    for idx, r in pima.iterrows():
+        age = float(r['Age'])
+        bmi = float(r['BMI']) if r['BMI'] > 0 else pima_median_bmi
+        glucose = float(r['Glucose']) if r['Glucose'] > 0 else pima_median_glu
+        bp = float(r['BloodPressure']) if r['BloodPressure'] > 0 else pima_median_bp
+        chronic_count = 0
+        if glucose >= 140: chronic_count += 1
+        if bmi >= 30.0: chronic_count += 1
+        if bp >= 90: chronic_count += 1
+        if int(r['Outcome']) == 1: chronic_count += 1
+        cost = round(800.0 + (glucose * 6.5) + (bmi * 42.0) + (age * 18.0) + (chronic_count * 450.0), 2)
+        rows.append({
+            'id': f"PIMA-{idx+1:04d}",
+            'Age': age,
+            'BMI': round(bmi, 1),
+            'Glucose': round(glucose, 1),
+            'Blood Pressure': round(bp, 1),
+            'Chronic Condition Count': chronic_count,
+            'Treatment Cost': cost
         })
-        
-    df = pd.DataFrame(data)
-    
-    # Introduce some missing values
-    for col in ['BMI', 'Glucose']:
-        df.loc[df.sample(frac=0.02).index, col] = np.nan
-        
-    # Introduce a few outliers
-    df.loc[df.sample(frac=0.01).index, 'Treatment Cost'] *= 5
-    
-    return df
-
+    for idx, r in heart.iterrows():
+        age = float(r['age'])
+        bp = float(r['trestbps'])
+        glucose = 165.0 if int(r['fbs']) == 1 else 98.0
+        chol = float(r['chol'])
+        diag = int(r['diagnosis'])
+        chronic_count = (1 if diag > 0 else 0) + (1 if chol > 240 else 0) + (1 if bp > 140 else 0)
+        cost = round(1200.0 + (bp * 8.0) + (chol * 4.5) + (age * 22.0) + (diag * 600.0), 2)
+        rows.append({
+            'id': f"HD-{idx+1:04d}",
+            'Age': age,
+            'BMI': pima_median_bmi,
+            'Glucose': glucose,
+            'Blood Pressure': bp,
+            'Chronic Condition Count': chronic_count,
+            'Treatment Cost': cost
+        })
+    df = pd.DataFrame(rows)
+    return df.head(n)
+def generate_segmentation_data(n=1500):
+    """Backward compatibility alias that loads real-world dataset."""
+    return load_real_segmentation_data(n)
 def perform_clustering(features, k, handle_outliers=False):
-    df = generate_segmentation_data(1000)
-    
-    # Filter features
+    df = load_real_segmentation_data(1000)
     selected_cols = [f for f in features if f in df.columns]
     if not selected_cols:
         return {"error": "No valid features selected"}
-        
     X_raw = df[selected_cols].copy()
-    
-    # Impute missing values
     imputer = SimpleImputer(strategy='median')
     X_imputed = imputer.fit_transform(X_raw)
     X = pd.DataFrame(X_imputed, columns=selected_cols, index=df.index)
-    
-    # Handle Outliers (Capping at 1st and 99th percentiles)
     if handle_outliers:
         for col in selected_cols:
             lower = X[col].quantile(0.01)
             upper = X[col].quantile(0.99)
             X[col] = np.clip(X[col], lower, upper)
-            
-    # Scale
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-    
-    # PCA
     pca = PCA(n_components=2)
     pca_result = pca.fit_transform(X_scaled)
-    explained_variance = pca.explained_variance_ratio_.tolist()
-    
-    # Evaluate K values (Elbow and Silhouette)
+    explained_variance = [float(v) for v in pca.explained_variance_ratio_]
     metrics = []
     max_k = min(10, len(X)-1)
     for i in range(2, max_k + 1):
@@ -104,13 +89,9 @@ def perform_clustering(features, k, handle_outliers=False):
             "inertia": float(km.inertia_),
             "silhouette": float(score)
         })
-        
-    # Final Clustering with selected K
     kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
     clusters = kmeans.fit_predict(X_scaled)
     df['Cluster'] = [f"Cluster {c}" for c in clusters]
-    
-    # Prepare scatter data
     scatter_data = []
     for i in range(len(df)):
         point = {
@@ -123,24 +104,19 @@ def perform_clustering(features, k, handle_outliers=False):
             val = df.iloc[i][col]
             point[col] = float(val) if pd.notnull(val) else None
         scatter_data.append(point)
-        
-    # Cluster Profiles
     profiles = []
     for c in range(k):
         c_name = f"Cluster {c}"
         c_data = df[df['Cluster'] == c_name]
         size = len(c_data)
-        
         means = {}
         for col in selected_cols:
-            means[col] = float(c_data[col].mean())
-            
+            means[col] = float(c_data[col].mean()) if size > 0 else 0.0
         profiles.append({
             "name": c_name,
             "size": size,
             "means": means
         })
-        
     return {
         "metrics": metrics,
         "pca_variance": explained_variance,

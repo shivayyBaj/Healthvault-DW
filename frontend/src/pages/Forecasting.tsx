@@ -15,8 +15,7 @@ export default function Forecasting() {
   const [aggregation, setAggregation] = useState<'day' | 'week'>('day');
   const [historyDays, setHistoryDays] = useState<number>(365);
   const [horizon, setHorizon] = useState<number>(30);
-  
-  // ARIMA parameters
+
   const [p, setP] = useState<number>(5);
   const [d, setD] = useState<number>(1);
   const [q, setQ] = useState<number>(0);
@@ -27,14 +26,13 @@ export default function Forecasting() {
 
   React.useEffect(() => {
     mutation.mutate({ aggregation, history_days: historyDays, horizon, p, d, q });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const handleRun = () => {
     mutation.mutate({ aggregation, history_days: historyDays, horizon, p, d, q });
   };
 
-  // Process data for chart
   let chartData: any[] = [];
   if (mutation.data && !mutation.data.error) {
     const historyMap = new Map();
@@ -45,7 +43,7 @@ export default function Forecasting() {
         fitted: h.predicted
       });
     });
-    
+
     mutation.data.forecast.forEach((f: any) => {
       if (historyMap.has(f.date)) {
         historyMap.set(f.date, {
@@ -65,7 +63,6 @@ export default function Forecasting() {
     chartData = Array.from(historyMap.values()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }
 
-  // Get last historical date for reference line
   const lastHistoryDate = mutation.data && !mutation.data.error && mutation.data.history.length > 0 
     ? mutation.data.history[mutation.data.history.length - 1].date 
     : null;
@@ -85,15 +82,14 @@ export default function Forecasting() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
-        {/* Configuration Sidebar */}
+
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
               <Settings className="h-5 w-5 text-gray-500" />
               Model Configuration
             </h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Aggregation</label>
@@ -144,7 +140,7 @@ export default function Forecasting() {
                   </div>
                 </div>
               </div>
-              
+
               <button
                 onClick={handleRun}
                 disabled={mutation.isPending}
@@ -154,19 +150,10 @@ export default function Forecasting() {
               </button>
             </div>
           </div>
-
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 text-amber-900">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-            <p className="text-xs">
-              <span className="font-semibold block mb-1">Exploratory Academic Module</span>
-              {mutation.data?.disclaimer || "Predictions are based on simplified synthetic data and should not be used for actual operational planning."}
-            </p>
-          </div>
         </div>
 
-        {/* Results Area */}
         <div className="lg:col-span-3 space-y-6">
-          
+
           {mutation.isPending && !mutation.data && (
             <div className="h-96 bg-white rounded-2xl border border-gray-100 flex items-center justify-center">
               <div className="flex flex-col items-center">
@@ -184,7 +171,7 @@ export default function Forecasting() {
 
           {mutation.data && !mutation.data.error && (
             <>
-              {/* Performance Metrics */}
+
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                   <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">MAE</div>
@@ -206,10 +193,9 @@ export default function Forecasting() {
                 </div>
               </div>
 
-              {/* Chart */}
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">Historical vs Forecasted Admissions</h3>
-                
+
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
@@ -234,10 +220,10 @@ export default function Forecasting() {
                       />
                       <Legend />
                       {lastHistoryDate && <ReferenceLine x={lastHistoryDate} stroke="#9CA3AF" strokeDasharray="3 3" />}
-                      
+
                       <Area type="monotone" dataKey="ci_range" fill="#E0E7FF" stroke="none" name="95% Confidence" />
                       <Line type="monotone" dataKey="actual" stroke="#111827" strokeWidth={2} dot={false} name="Actual" />
-                      {/* <Line type="monotone" dataKey="fitted" stroke="#9CA3AF" strokeWidth={1} strokeDasharray="3 3" dot={false} name="Fitted (In-Sample)" /> */}
+
                       <Line type="monotone" dataKey="forecast" stroke="#4F46E5" strokeWidth={3} dot={false} name="Forecast" />
                     </ComposedChart>
                   </ResponsiveContainer>
@@ -245,7 +231,7 @@ export default function Forecasting() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Validation Table */}
+
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                   <div className="p-4 bg-gray-50 border-b border-gray-100">
                     <h3 className="font-semibold text-gray-900">Recent Validation (Last 5 periods)</h3>
@@ -276,7 +262,6 @@ export default function Forecasting() {
                   </table>
                 </div>
 
-                {/* Educational Panel */}
                 <div className="bg-indigo-50 rounded-2xl border border-indigo-100 p-6">
                   <h3 className="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
                     <BookOpen className="h-5 w-5" />

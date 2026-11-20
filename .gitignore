@@ -25,8 +25,6 @@ backend/**/*.pyo
 backend/.env
 backend/instance/
 backend/healthvault.db
-backend/data/*.csv
-backend/data/*.arff
 
 # ─── Trained ML Models ───────────────────────────────────────
 backend/models_storage/*.pkl

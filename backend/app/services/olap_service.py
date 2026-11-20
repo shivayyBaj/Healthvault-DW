@@ -1,6 +1,5 @@
 import random
 from datetime import datetime, timedelta
-
 DEPARTMENTS = ["Cardiology", "Endocrinology", "Neurology", "Orthopedics", "Internal Medicine"]
 DOCTORS = {
     "Cardiology": ["Dr. Smith", "Dr. Patel", "Dr. Williams"],
@@ -10,13 +9,10 @@ DOCTORS = {
     "Internal Medicine": ["Dr. Thomas", "Dr. Jackson", "Dr. White"],
 }
 DIAGNOSIS_CATEGORIES = ["Circulatory", "Endocrine", "Respiratory", "Digestive", "Musculoskeletal"]
-
-
 def get_rollup_data(level: str, department: str = None):
     random.seed(42)
     data = []
     mult = 0.38 if department else 1.0
-
     if level == "year":
         for year in [2023, 2024, 2025, 2026]:
             data.append({
@@ -54,7 +50,6 @@ def get_rollup_data(level: str, department: str = None):
                 "cost": round(random.uniform(2_000, 15_000) * mult, 2),
                 "avg_los": round(random.uniform(3.5, 5.5), 1),
             })
-
     total_adm = sum(r["admissions"] for r in data)
     total_cost = sum(r["cost"] for r in data)
     return {
@@ -67,11 +62,8 @@ def get_rollup_data(level: str, department: str = None):
             "avg_cost_per_admission": round(total_cost / total_adm, 2) if total_adm else 0,
         },
     }
-
-
 def get_drilldown_data(level: str, parent_id: str = None):
     random.seed(99)
-
     if level == "department":
         data = []
         for dept in DEPARTMENTS:
@@ -85,7 +77,6 @@ def get_drilldown_data(level: str, parent_id: str = None):
             })
         return {"level": "department", "parent": None, "data": data,
                 "breadcrumb": [{"label": "All Departments", "id": None, "level": "department"}]}
-
     elif level == "doctor" and parent_id:
         docs = DOCTORS.get(parent_id, ["Dr. Unknown"])
         data = []
@@ -105,7 +96,6 @@ def get_drilldown_data(level: str, parent_id: str = None):
                 {"label": parent_id, "id": parent_id, "level": "doctor"},
             ],
         }
-
     elif level == "visit" and parent_id:
         dept, doctor = parent_id.split("::", 1)
         data = []
@@ -129,10 +119,7 @@ def get_drilldown_data(level: str, parent_id: str = None):
                 {"label": doctor, "id": parent_id, "level": "visit"},
             ],
         }
-
     return {"level": "department", "data": [], "breadcrumb": []}
-
-
 def get_slice_data(slice_dim: str, slice_value: str):
     random.seed(77)
     months_data = []
@@ -163,19 +150,14 @@ def get_slice_data(slice_dim: str, slice_value: str):
             "avg_los": round(random.uniform(3.5, 5.5), 1),
         },
     }
-
-
 def get_dice_data(filters: dict):
     random.seed(55)
     active = sum(1 for v in filters.values() if v and v.lower() != "all")
     reduction = max(0.08, 1.0 - active * 0.12)
-
     base_adm = 12840
     base_cost = 54_600_000.0
-
     filtered_adm = int(base_adm * reduction * random.uniform(0.85, 1.15))
     filtered_cost = round(base_cost * reduction * random.uniform(0.85, 1.15), 2)
-
     cats = (
         DIAGNOSIS_CATEGORIES
         if not filters.get("diagnosis") or filters["diagnosis"].lower() == "all"
@@ -190,7 +172,6 @@ def get_dice_data(filters: dict):
             "avg_cost": round(filtered_cost / max(filtered_adm, 1) * random.uniform(0.8, 1.2), 2),
             "readmission_rate": round(random.uniform(0.10, 0.25), 3),
         })
-
     monthly = []
     for i in range(5, -1, -1):
         d = datetime.now() - timedelta(days=30 * i)
@@ -199,7 +180,6 @@ def get_dice_data(filters: dict):
             "admissions": max(1, int(filtered_adm / 6 * random.uniform(0.7, 1.3))),
             "cost": round(filtered_cost / 6 * random.uniform(0.7, 1.3), 2),
         })
-
     return {
         "filters_applied": filters,
         "active_filter_count": active,

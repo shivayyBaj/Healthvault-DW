@@ -44,7 +44,6 @@ export default function ETLPipeline() {
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="border-b border-slate-200">
         <nav className="-mb-px flex space-x-8">
           <button
@@ -64,7 +63,7 @@ export default function ETLPipeline() {
 
       {activeTab === 'pipeline' && (
         <div className="space-y-6">
-          {/* Pipeline Stages Diagram */}
+
           <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
             <h3 className="text-lg font-semibold text-slate-800 mb-6">Execution Stages</h3>
             <div className="flex items-center justify-between text-center relative">
@@ -84,10 +83,9 @@ export default function ETLPipeline() {
             </div>
           </div>
 
-          {/* Results Area */}
           {latestRun && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Metrics */}
+
               <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-semibold text-slate-800">Execution Summary</h3>
@@ -119,7 +117,6 @@ export default function ETLPipeline() {
                 </div>
               </div>
 
-              {/* Data Quality */}
               <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
                 <h3 className="text-lg font-semibold text-slate-800 mb-4">Data Quality Report</h3>
                 <div className="space-y-4">

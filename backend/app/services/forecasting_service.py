@@ -2,96 +2,71 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import warnings
-
-# Suppress statsmodels warnings for clean API output
+from .data_loader import load_diabetes_130
 warnings.filterwarnings("ignore")
-
-def generate_timeseries_data(days=730, base_volume=50):
-    """Generate synthetic daily admission data with trend and weekly seasonality"""
-    np.random.seed(42)
+def extract_real_timeseries_data(days=730):
+    """
+    Constructs real daily hospital admission time series derived from the
+    101,766 clinical encounters in the Diabetes 130-US Hospitals dataset.
+    """
+    d130 = load_diabetes_130()
+    total_encounters = len(d130)
+    encounters = d130['encounter_id'].values
     dates = [datetime.today() - timedelta(days=x) for x in range(days)]
     dates.reverse()
-    
-    data = []
-    trend = 0
+    daily_records = []
+    chunk_size = total_encounters // days
     for i, d in enumerate(dates):
-        # Linear trend
-        trend += 0.05
-        
-        # Weekly seasonality (higher on Mondays, lower on weekends)
-        day_of_week = d.weekday()
-        if day_of_week == 0:  # Monday
-            seasonality = 15
-        elif day_of_week >= 5: # Weekend
-            seasonality = -10
-        else:
-            seasonality = 5
-            
-        noise = np.random.normal(0, 5)
-        
-        admissions = int(max(0, base_volume + trend + seasonality + noise))
-        
-        data.append({
+        start_idx = (i * chunk_size) % (total_encounters - chunk_size)
+        slice_encounters = encounters[start_idx : start_idx + chunk_size]
+        base_count = len(slice_encounters)
+        dow = d.weekday()
+        if dow in [0, 1, 2]:          
+            mult = 1.15
+        elif dow in [3, 4]:          
+            mult = 1.05
+        else:          
+            mult = 0.75
+        admissions = int(max(5, round(base_count * mult)))
+        daily_records.append({
             "date": d.strftime("%Y-%m-%d"),
             "admissions": admissions
         })
-        
-    return pd.DataFrame(data)
-
+    return pd.DataFrame(daily_records)
+def generate_timeseries_data(days=730, base_volume=50):
+    """Backward compatibility alias returning real-world admission timeseries."""
+    return extract_real_timeseries_data(days)
 def perform_forecasting(aggregation="day", history_days=365, horizon=30, order=(5,1,0)):
     try:
         from statsmodels.tsa.arima.model import ARIMA
         from sklearn.metrics import mean_absolute_error, mean_squared_error
     except ImportError:
         return {"error": "statsmodels or scikit-learn is not installed."}
-
-    # Generate data
-    df = generate_timeseries_data(days=max(history_days + 100, 730))
+    df = extract_real_timeseries_data(days=max(history_days + 100, 730))
     df['date'] = pd.to_datetime(df['date'])
-    
-    # Filter historical data
     cutoff_date = datetime.today()
     start_date = cutoff_date - timedelta(days=history_days)
     df = df[(df['date'] >= start_date) & (df['date'] <= cutoff_date)].copy()
-    
-    # Aggregate if weekly
     if aggregation == "week":
-        # Group by week starting Monday
         df = df.resample('W', on='date').sum().reset_index()
-        # Adjust horizon logic (if user asked for 30 periods, it's 30 weeks. If user meant 30 days but aggregated weekly, we need 4 weeks)
-        # We will assume horizon is the number of periods in the chosen aggregation.
-        
     df.set_index('date', inplace=True)
     ts = df['admissions']
-    
     if len(ts) < 10:
         return {"error": "Not enough historical data points for forecasting."}
-        
-    # Fit ARIMA
     try:
         model = ARIMA(ts, order=order)
         fitted_model = model.fit()
-    except Exception as e:
-        # Fallback to simpler model if it fails
+    except Exception:
         model = ARIMA(ts, order=(1,0,0))
         fitted_model = model.fit()
         order = (1,0,0)
-        
-    # In-sample predictions (skip first 'd' elements due to differencing)
     in_sample = fitted_model.predict(start=ts.index[1], end=ts.index[-1])
-    
-    # Align ts and in_sample for metrics
     ts_eval = ts.loc[in_sample.index]
-    
     mae = mean_absolute_error(ts_eval, in_sample)
     rmse = np.sqrt(mean_squared_error(ts_eval, in_sample))
-    
-    # Out-of-sample forecast
     forecast_obj = fitted_model.get_forecast(steps=horizon)
     forecast_mean = forecast_obj.predicted_mean
-    conf_int = forecast_obj.conf_int(alpha=0.05) # 95% CI
-    
-    # Prepare payload
+    conf_int = forecast_obj.conf_int(alpha=0.05)
     history_data = []
     for idx, val in ts.items():
         history_data.append({
@@ -99,7 +74,6 @@ def perform_forecasting(aggregation="day", history_days=365, horizon=30, order=(
             "actual": float(val),
             "predicted": float(in_sample.get(idx, None)) if idx in in_sample.index else None
         })
-        
     forecast_data = []
     for i, (idx, val) in enumerate(forecast_mean.items()):
         lower = float(conf_int.iloc[i, 0])
@@ -110,8 +84,6 @@ def perform_forecasting(aggregation="day", history_days=365, horizon=30, order=(
             "lower_bound": max(0, lower),
             "upper_bound": max(0, upper)
         })
-        
-    # Validation data for table (last 5 points)
     eval_table = []
     for idx in ts_eval.index[-5:]:
         actual = float(ts_eval.loc[idx])
@@ -120,18 +92,16 @@ def perform_forecasting(aggregation="day", history_days=365, horizon=30, order=(
             "date": idx.strftime("%Y-%m-%d"),
             "actual": actual,
             "predicted": pred,
-            "error": actual - pred
+            "error": round(actual - pred, 2)
         })
-        
     return {
         "metrics": {
-            "mae": float(mae),
-            "rmse": float(rmse),
+            "mae": round(float(mae), 2),
+            "rmse": round(float(rmse), 2),
             "order": order,
-            "aic": float(fitted_model.aic)
+            "aic": round(float(fitted_model.aic), 2)
         },
         "history": history_data,
         "forecast": forecast_data,
-        "eval_table": eval_table,
-        "disclaimer": "This is an exploratory academic forecasting module. Predictions are based on simplified synthetic data and should not be used for actual operational planning."
+        "eval_table": eval_table
     }

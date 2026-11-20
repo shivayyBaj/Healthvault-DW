@@ -1,2 +1,1 @@
-# HealthVault Backend Package
 

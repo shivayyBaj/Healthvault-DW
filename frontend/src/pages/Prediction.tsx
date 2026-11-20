@@ -46,11 +46,10 @@ export default function Prediction() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* INPUT FORM */}
+
         <div className="lg:col-span-2 bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
-            
+
             <div>
               <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b pb-2"><User className="h-4 w-4"/> Demographics</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -138,13 +137,12 @@ export default function Prediction() {
           </form>
         </div>
 
-        {/* RESULTS PANEL */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm sticky top-6 overflow-hidden">
             <div className="bg-slate-800 text-white p-4 text-center">
               <h3 className="font-bold text-lg">Analysis Result</h3>
             </div>
-            
+
             <div className="p-6">
               {!result && !predict.isPending && (
                 <div className="text-center py-12 text-slate-400">
@@ -169,8 +167,7 @@ export default function Prediction() {
 
               {result && !result.error && (
                 <div className="space-y-6 flex flex-col items-center">
-                  
-                  {/* Risk Gauge/Meter equivalent */}
+
                   <div className="text-center w-full">
                     <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-2">Readmission Risk</p>
                     <div className={`p-6 rounded-full inline-block border-4 shadow-inner ${
@@ -199,13 +196,6 @@ export default function Prediction() {
                         {result.model_used}
                       </span>
                     </div>
-                  </div>
-
-                  <div className="w-full bg-blue-50 border border-blue-200 rounded-lg p-3 flex gap-2 items-start mt-4">
-                    <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
-                    <p className="text-xs text-blue-800 font-medium leading-relaxed">
-                      {result.disclaimer} This system demonstrates predictive analytics capabilities and does not provide clinical diagnoses.
-                    </p>
                   </div>
 
                 </div>

@@ -5,8 +5,6 @@ import {
   CheckCircle2, AlertCircle, LayoutGrid
 } from 'lucide-react';
 
-// --- MOCK DATA FOR DATASETS ---
-
 const DATASETS = [
   {
     id: 'uci-heart',
@@ -20,7 +18,6 @@ const DATASETS = [
     numColumns: 5,
     catColumns: 9,
     isSynthetic: false,
-    disclaimer: 'This dataset is for educational purposes and should not be used for actual clinical diagnostics.',
     schema: [
       { col: 'age', type: 'Numeric', desc: 'Age in years' },
       { col: 'sex', type: 'Categorical', desc: '1 = male; 0 = female' },
@@ -60,7 +57,6 @@ const DATASETS = [
     numColumns: 8,
     catColumns: 1,
     isSynthetic: false,
-    disclaimer: 'Historical dataset. Not indicative of modern clinical profiles.',
     schema: [
       { col: 'Pregnancies', type: 'Numeric', desc: 'Number of times pregnant' },
       { col: 'Glucose', type: 'Numeric', desc: 'Plasma glucose concentration' },
@@ -96,7 +92,6 @@ const DATASETS = [
     numColumns: 13,
     catColumns: 37,
     isSynthetic: false,
-    disclaimer: 'Complex real-world dataset. Clinical generalizations should not be made from models trained solely on this data.',
     schema: [
       { col: 'encounter_id', type: 'Numeric', desc: 'Unique identifier of an encounter' },
       { col: 'patient_nbr', type: 'Numeric', desc: 'Unique identifier of a patient' },
@@ -132,7 +127,6 @@ const DATASETS = [
     numColumns: 12,
     catColumns: 13,
     isSynthetic: true,
-    disclaimer: 'This dataset is 100% synthetically generated. It contains no real patient information and cannot be used for clinical insights.',
     schema: [
       { col: 'patient_id', type: 'Categorical', desc: 'UUID' },
       { col: 'age', type: 'Numeric', desc: '18-95 years' },
@@ -158,24 +152,22 @@ const DATASETS = [
   },
 ];
 
-const TABS = ['Overview', 'Schema', 'Preview', 'Missing Values', 'Statistics', 'Distributions', 'Data Quality'];
+const TABS = ['Overview', 'Schema', 'Preview'];
 
 export default function Datasets() {
   const [activeDatasetId, setActiveDatasetId] = useState(DATASETS[0].id);
   const [activeTab, setActiveTab] = useState('Overview');
-  
-  // Data Table State
+
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<{key: string, direction: 'asc'|'desc'} | null>(null);
-  
+
   const dataset = DATASETS.find(d => d.id === activeDatasetId)!;
   const ITEMS_PER_PAGE = 10;
 
-  // Process data for preview table
   const processedData = useMemo(() => {
     let data = [...dataset.preview];
-    
+
     if (searchTerm) {
       data = data.filter(row => 
         Object.values(row).some(val => 
@@ -183,7 +175,7 @@ export default function Datasets() {
         )
       );
     }
-    
+
     if (sortConfig) {
       data.sort((a, b) => {
         const valA = (a as Record<string, any>)[sortConfig.key];
@@ -193,7 +185,7 @@ export default function Datasets() {
         return 0;
       });
     }
-    
+
     return data;
   }, [dataset, searchTerm, sortConfig]);
 
@@ -225,7 +217,7 @@ export default function Datasets() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
-      
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 flex items-center gap-3">
@@ -252,8 +244,7 @@ export default function Datasets() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        
-        {/* Dataset Header Card */}
+
         <div className="p-6 bg-gradient-to-r from-slate-50 to-white border-b border-gray-100">
           <div className="flex flex-wrap gap-2 items-center mb-2">
             <h2 className="text-2xl font-bold text-gray-900">{dataset.name}</h2>
@@ -263,7 +254,7 @@ export default function Datasets() {
               </span>
             )}
           </div>
-          
+
           <p className="text-gray-600 mb-6 flex items-center gap-2">
             <Info className="h-4 w-4" /> Source: {dataset.source}
           </p>
@@ -288,16 +279,6 @@ export default function Datasets() {
           </div>
         </div>
 
-        {/* Disclaimer */}
-        <div className="bg-amber-50 border-y border-amber-200 px-6 py-3 flex gap-3 text-amber-900 items-start">
-          <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-          <p className="text-sm">
-            <span className="font-semibold block mb-0.5">Clinical Suitability Disclaimer</span>
-            {dataset.disclaimer}
-          </p>
-        </div>
-
-        {/* Tabs navigation */}
         <div className="border-b border-gray-200 px-6 flex overflow-x-auto">
           {TABS.map(tab => (
             <button
@@ -314,9 +295,8 @@ export default function Datasets() {
           ))}
         </div>
 
-        {/* Tab Content */}
         <div className="p-6 min-h-[400px]">
-          
+
           {activeTab === 'Overview' && (
             <div className="space-y-6 max-w-3xl">
               <div>
@@ -327,7 +307,7 @@ export default function Datasets() {
                   {dataset.intendedUse}
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Missing Values Status</h3>
@@ -436,8 +416,7 @@ export default function Datasets() {
                   </tbody>
                 </table>
               </div>
-              
-              {/* Pagination */}
+
               {totalPages > 1 && (
                 <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-xl">
                   <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
@@ -467,17 +446,6 @@ export default function Datasets() {
                   </div>
                 </div>
               )}
-            </div>
-          )}
-
-          {/* Placeholders for advanced tabs (Statistics, Distributions, Data Quality, Missing Values) */}
-          {['Missing Values', 'Statistics', 'Distributions', 'Data Quality'].includes(activeTab) && (
-            <div className="h-64 flex flex-col items-center justify-center text-gray-500 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-              <BarChart2 className="h-12 w-12 text-gray-300 mb-3" />
-              <h3 className="text-lg font-medium text-gray-900">{activeTab} Visualization</h3>
-              <p className="text-sm mt-1 max-w-md text-center">
-                This academic module focuses on the schema and preview. Full exploratory data analysis charts for {activeTab.toLowerCase()} would be rendered here in a full BI tool.
-              </p>
             </div>
           )}
 

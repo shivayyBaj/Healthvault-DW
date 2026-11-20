@@ -62,7 +62,7 @@ export default function Dice() {
 
   return (
     <div className="space-y-5">
-      {/* Controls */}
+
       <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
         <h4 className="text-sm font-semibold text-slate-700 mb-4 border-b border-slate-100 pb-2">Apply Multiple Filters (Dice)</h4>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -87,12 +87,10 @@ export default function Dice() {
         </div>
       </div>
 
-      {/* Query Summary */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-800">
         <span className="font-semibold">📊 Current Query: </span>{querySummary}
       </div>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: 'Filtered Admissions', value: kpis?.total_admissions?.toLocaleString(), icon: Users, color: 'text-blue-600 bg-blue-50' },
@@ -113,7 +111,6 @@ export default function Dice() {
         })}
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
           <h4 className="font-semibold text-slate-700 mb-4">Admissions by Diagnosis Category</h4>

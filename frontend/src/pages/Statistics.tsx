@@ -33,10 +33,9 @@ export default function Statistics() {
 
   const downloadCsv = (data: any, filename: string) => {
     if (!data) return;
-    
-    // Simple JSON to CSV converter for flat structures
+
     let csvStr = '';
-    
+
     if (activeTab === 'chi') {
       csvStr = 'Gender,Diagnosis,Observed,Expected\n';
       data.table.forEach((row: any) => {
@@ -137,7 +136,7 @@ export default function Statistics() {
       </div>
 
       <div className="mt-6">
-        {/* DESCRIPTIVE */}
+
         {activeTab === 'descriptive' && (
           <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
             <div className="mb-6 max-w-sm">
@@ -161,7 +160,7 @@ export default function Statistics() {
                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-lg"><p className="text-xs text-slate-500 uppercase font-semibold">Mean (μ)</p><p className="text-2xl font-bold text-slate-800">{descData.mean.toFixed(2)}</p></div>
                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-lg"><p className="text-xs text-slate-500 uppercase font-semibold">Median</p><p className="text-2xl font-bold text-slate-800">{descData.median.toFixed(2)}</p></div>
                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-lg"><p className="text-xs text-slate-500 uppercase font-semibold">Std Deviation (σ)</p><p className="text-2xl font-bold text-slate-800">{descData.std_dev.toFixed(2)}</p></div>
-                
+
                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-lg"><p className="text-xs text-slate-500 uppercase font-semibold">Variance (σ²)</p><p className="text-xl font-semibold text-slate-700">{descData.variance.toFixed(2)}</p></div>
                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-lg"><p className="text-xs text-slate-500 uppercase font-semibold">Min / Max</p><p className="text-xl font-semibold text-slate-700">{descData.min.toFixed(1)} / {descData.max.toFixed(1)}</p></div>
                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-lg"><p className="text-xs text-slate-500 uppercase font-semibold">Q1 / Q3</p><p className="text-xl font-semibold text-slate-700">{descData.q1.toFixed(1)} / {descData.q3.toFixed(1)}</p></div>
@@ -171,13 +170,12 @@ export default function Statistics() {
           </div>
         )}
 
-        {/* T-TEST */}
         {activeTab === 'ttest' && (
           <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
             {ttestLoading ? <div className="h-64 bg-slate-100 animate-pulse rounded" /> : ttestData && (
               <>
                 <HypothesisBlock data={ttestData} />
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h5 className="font-semibold text-slate-700 mb-3 border-b pb-2">Group Statistics</h5>
@@ -209,7 +207,6 @@ export default function Statistics() {
           </div>
         )}
 
-        {/* CHI-SQUARE */}
         {activeTab === 'chi' && (
           <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
             {chiLoading ? <div className="h-64 bg-slate-100 animate-pulse rounded" /> : chiData && (
@@ -263,7 +260,6 @@ export default function Statistics() {
           </div>
         )}
 
-        {/* ANOVA */}
         {activeTab === 'anova' && (
           <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
             {anovaLoading ? <div className="h-64 bg-slate-100 animate-pulse rounded" /> : anovaData && (

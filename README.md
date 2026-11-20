@@ -31,7 +31,7 @@ HealthVault DW is an advanced, academic healthcare data warehouse and intelligen
 | **🧬 ML — Patient Segmentation** | K-Means clustering with PCA visualization, Elbow method, and Silhouette analysis |
 | **📉 ML — Time-Series Forecasting** | ARIMA-based admission forecasting with configurable (p, d, q) parameters |
 | **🔍 Explainable AI (XAI)** | SHAP (global) + LIME (local) explanations for interpreting black-box model predictions |
-| **🧪 WEKA Integration** | Export datasets in `.arff`/`.csv` for analysis in the WEKA GUI |
+| **📁 Real-World Datasets** | Ingest, profile, and explore Cleveland Heart, Pima Diabetes, and Diabetes 130-US Hospitals datasets |
 
 ---
 
@@ -99,7 +99,7 @@ healthvault-dw/
 │   │   │   ├── Clustering.tsx     # Patient segmentation visualization
 │   │   │   ├── Forecasting.tsx    # ARIMA forecasting interface
 │   │   │   ├── Explainability.tsx # SHAP/LIME visualization
-│   │   │   └── Datasets.tsx       # Dataset management & WEKA export
+│   │   │   └── Datasets.tsx       # Dataset management & sample preview
 │   │   ├── components/            # Reusable UI components
 │   │   │   ├── dashboard/         # Dashboard-specific widgets
 │   │   │   ├── olap/              # OLAP operation components
@@ -301,14 +301,6 @@ Place real CSV files in `backend/data/` (not tracked by git) and trigger process
 |--------|-------|---------------|
 | **SHAP** | Global | Feature importance rankings across the full dataset — which features drive the model overall |
 | **LIME** | Local | Per-patient explanations — why the model made a specific prediction for an individual |
-
----
-
-## 🧪 WEKA Workflow
-
-1. Navigate to the **Datasets** page in the UI
-2. Export datasets via `/api/weka/export` in `.arff` or `.csv` format
-3. Open the exported files in the [WEKA GUI](https://www.cs.waikato.ac.nz/ml/weka/) for further analysis
 
 ---
 

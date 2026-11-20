@@ -30,7 +30,6 @@ export default function Warehouse() {
         <p className="text-slate-500 text-sm mt-1">Star Schema explorer & SCD Type 2 demonstrator</p>
       </div>
 
-      {/* SCD Type 2 Demonstrator */}
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
         <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
@@ -56,9 +55,9 @@ export default function Warehouse() {
 
         <div className="p-6">
           {isLoading && <div className="animate-pulse flex space-x-4"><div className="flex-1 space-y-4 py-1"><div className="h-4 bg-slate-200 rounded w-3/4"></div><div className="space-y-2"><div className="h-4 bg-slate-200 rounded"></div></div></div></div>}
-          
+
           {isError && <div className="text-red-500 p-4 bg-red-50 rounded-md">Error loading patient history. Is the backend running?</div>}
-          
+
           {history && history.length === 0 && (
             <div className="text-center py-12 text-slate-500">
               <Database className="h-12 w-12 mx-auto text-slate-300 mb-3" />
@@ -71,9 +70,9 @@ export default function Warehouse() {
             <div className="relative border-l-2 border-slate-200 ml-3 md:ml-6 space-y-8">
               {history.map((record: any, index: number) => (
                 <div key={record.patient_key} className="relative pl-8">
-                  {/* Timeline Dot */}
+
                   <div className={`absolute -left-[9px] top-1.5 h-4 w-4 rounded-full border-2 border-white ${record.is_current ? 'bg-green-500' : 'bg-slate-400'}`}></div>
-                  
+
                   <div className={`bg-white p-5 rounded-lg border shadow-sm transition-all ${record.is_current ? 'border-green-200 ring-1 ring-green-100' : 'border-slate-200'}`}>
                     <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
                       <div>
