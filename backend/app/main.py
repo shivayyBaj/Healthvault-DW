@@ -269,7 +269,9 @@ def trigger_etl():
     from .services.etl_service import run_etl_pipeline
     db = get_db()
     try:
-        result = run_etl_pipeline(db)
+        data = request.get_json(silent=True) or {}
+        num_records = data.get("num_records", None)
+        result = run_etl_pipeline(db, num_records=num_records)
         return jsonify(result)
     except Exception as e:
         return jsonify({"status": "FAILED", "error": str(e)}), 500
