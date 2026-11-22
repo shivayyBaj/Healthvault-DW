@@ -18,6 +18,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # ─── Python / Backend ────────────────────────────────────────
+__pycache__/
+*.py[cod]
 backend/venv/
 backend/**/__pycache__/
 backend/**/*.pyc
